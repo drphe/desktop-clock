@@ -1,0 +1,12 @@
+{
+    "top_dis": -80,
+    "time_dis": -60,
+    "font_timelabel": ".VnBahamasBH",
+    "font_datelabel": "Segoe UI",
+    "size_timelabel": 60,
+    "size_datelabel": 20,
+    "text_color": "white",
+    "bg_color": "gray99",
+    "show_seconds": false,
+    "time_24h": false
+}

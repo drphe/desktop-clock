@@ -16,3 +16,13 @@ NOTE: You will need to have Python 3 installed and `pythonw` must be added to yo
 5. Done! The clock will now appear anytime you start your computer.
 
 If you would like to close the program, click on the clock and hold the escape key for 1 second.
+If you want to change setting , click on the clock and press Ctrl + S or doubleclick on the clock
+
+How to build an exe
+
+1. Open Terminal
+pip install pyinstaller
+
+2. Copy icon.ico
+3. Run execute
+python -m PyInstaller --noconsole --onefile --icon=icon.ico clock.py
