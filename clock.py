@@ -6,12 +6,21 @@ import locale
 from time import strftime
 import sys
 
+# --- KÍCH HOẠT KHỬ RĂNG CƯA / NHÒE FONT BẰNG DPI AWARENESS ---
+try:
+    import ctypes
+    # Ép Windows render font chữ theo độ phân giải thực của màn hình, giúp biên chữ mịn hơn
+    ctypes.windll.shcore.SetProcessDpiAwareness(1) 
+except:
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()
+    except:
+        pass
+
 # --- 1. XỬ LÝ ĐƯỜNG DẪN CONFIG ---
 def get_config_path():
     if hasattr(sys, '_MEIPASS'):
-        # Nếu đang chạy file .exe build từ PyInstaller
         return os.path.join(os.path.dirname(sys.executable), "config.json")
-    # Nếu đang chạy file .py bình thường
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 
 CONFIG_FILE = get_config_path()
@@ -70,7 +79,6 @@ def open_settings(*args):
     current_conf = load_config()
     entries = {}
 
-    # Biến cho Checkbox
     show_sec_var = tk.BooleanVar(value=current_conf.get("show_seconds", True))
     time_24h_var = tk.BooleanVar(value=current_conf.get("time_24h", True))
 
@@ -80,7 +88,6 @@ def open_settings(*args):
             entry_widget.delete(0, tk.END)
             entry_widget.insert(0, color_code)
 
-    # Các trường nhập liệu
     fields = [
         ("Vị trí dọc", "top_dis", "number", [-500, 500, 5]),
         ("Time-Date", "time_dis", "number", [-200, 200, 5]),
@@ -116,7 +123,6 @@ def open_settings(*args):
             tk.Button(row, text="🎨", command=lambda e=ent: pick_color(e)).pack(side="right")
             entries[key] = ent
 
-    # Checkbox
     check_frame = tk.Frame(settings_win)
     check_frame.pack(fill="x", padx=10, pady=10)
     tk.Checkbutton(check_frame, text="Hiện giây", variable=show_sec_var).pack(side="left", padx=5)
@@ -142,22 +148,15 @@ def open_settings(*args):
             messagebox.showerror("Lỗi", str(e))
 
     tk.Button(settings_win, text="Lưu & Áp dụng", command=apply, bg="#2ecc71", fg="white", height=2).pack(fill="x", padx=20, pady=10)
-# Thêm đoạn chú thích dưới nút Lưu
+
     note_text = (
         "• Vị trí dọc: Thay đổi vị trí dọc của đồng hồ\n"
         "• Time-Date: > 40 đặt Ngày lên trên Giờ\n"
         "• Time-Date: < -60 đặt Ngày xuống dưới Giờ\n"
-        "Version: 0.1 mod by @drphe"
+        "Version: 0.1 Mod Smooth (DPI Aware)"
     )
     
-    lbl_note = tk.Label(  # Thêm tk. nếu cần
-        settings_win, 
-        text=note_text, 
-        justify="left",    # Căn lề trái để các dấu • thẳng hàng
-        fg="#7f8c8d",      
-        font=("Segoe UI", 9, "italic")
-    )
-    # pady=(10, 0) để tạo khoảng cách với nút Lưu phía trên
+    lbl_note = tk.Label(settings_win, text=note_text, justify="left", fg="#7f8c8d", font=("Segoe UI", 9, "italic"))
     lbl_note.pack(padx=20, pady=(10, 0), fill="x", anchor="w")
 
 # --- 5. LOGIC ĐỒNG HỒ ---
@@ -196,18 +195,19 @@ timeframe = tk.Frame(root, width=screen_width, height=screen_height)
 timeframe.grid(row=0, column=0)
 
 tkintertime = tk.StringVar()
-timelabel = tk.Label(timeframe, textvariable=tkintertime)
+# Thêm vùng đệm nhỏ (padx/pady) để tránh việc rìa chữ bị cắt lẹm khi Windows khử răng cưa font
+timelabel = tk.Label(timeframe, textvariable=tkintertime, padx=10, pady=5)
 tkinterdate = tk.StringVar()
-datelabel = tk.Label(timeframe, textvariable=tkinterdate)
+datelabel = tk.Label(timeframe, textvariable=tkinterdate, padx=10, pady=5)
 
 refresh_ui()
 
 # Sự kiện chuột
 for w in (timelabel, datelabel, timeframe):
     w.bind('<Double-Button-1>', lambda e: open_settings())
-# Bắt sự kiện bàn phím
+
 root.bind('<Escape>', lambda e: root.destroy())
-root.bind('<Control-s>', open_settings)          # Ctrl + s (viết thường)
+root.bind('<Control-s>', open_settings)
 root.bind('<Control-S>', open_settings)
 
 update_clock()
